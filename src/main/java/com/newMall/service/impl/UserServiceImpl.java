@@ -22,6 +22,7 @@ import static com.newMall.common.Const.Role.ROLE_CUSTOMER;
 @Service("iUserService")
 public class UserServiceImpl implements IUserService {
 
+
     @Autowired
     private UserMapper userMapper;
 
@@ -43,12 +44,12 @@ public class UserServiceImpl implements IUserService {
 
     public ServerResponse register(User user) {
         //判断用户名是否存在start--------
-       ServerResponse<String> username =  this.checkVaild(user.getUsername(), Const.USERNAME);//校验用户名是否存在
+        ServerResponse<String> username = this.checkVaild(user.getUsername(), Const.USERNAME);//校验用户名是否存在
         if (!username.isSuccess()) {
             return username;
         }
 
-        ServerResponse<String> email =  this.checkVaild(user.getEmail(), Const.EMAIL);//校验用户名是否存在
+        ServerResponse<String> email = this.checkVaild(user.getEmail(), Const.EMAIL);//校验用户名是否存在
         if (!email.isSuccess()) {
             return email;
         }
@@ -73,15 +74,15 @@ public class UserServiceImpl implements IUserService {
                 if (checkCount > 0) {
                     return ServerResponse.createByErrorMsg("用户名已存在");
                 }
-            }else if (Const.EMAIL.equals(type)) {
+            } else if (Const.EMAIL.equals(type)) {
                 checkCount = userMapper.checkEmail(str);
                 if (checkCount > 0) {
                     return ServerResponse.createByErrorMsg("邮箱已存在");
                 }
-            }else{
+            } else {
                 return ServerResponse.createByErrorMsg("参数错误");
             }
-        }else {
+        } else {
             return ServerResponse.createByErrorMsg("参数错误");
         }
         return ServerResponse.createBySuccessMsg("校验成功");
@@ -89,7 +90,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public ServerResponse<String> forgettGetQuestion(String username) {
-       ServerResponse serverResponse =  this.checkVaild(username, Const.USERNAME);
+        ServerResponse serverResponse = this.checkVaild(username, Const.USERNAME);
         if (serverResponse.isSuccess()) {
             return ServerResponse.createByErrorMsg("用户名不存在");
         }
@@ -106,7 +107,7 @@ public class UserServiceImpl implements IUserService {
         if (result > 0) {
             //问题答案正确，返回token值
             String forgetToken = UUID.randomUUID().toString();
-            TokenCahce.setKey(TokenCahce.TOKEN_PREFIX+username,forgetToken);
+            TokenCahce.setKey(TokenCahce.TOKEN_PREFIX + username, forgetToken);
             return ServerResponse.createBySuccess(forgetToken);
         }
         return ServerResponse.createByErrorMsg("密码提示问题答案错误");
@@ -129,15 +130,42 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMsg("token无效或者过期");
         }
         //此时，判断当前token和缓存中的token是否相同
+        String Md5Password = MD5Util.MD5EncodeUtf8(passwordNew);
         if (StringUtils.equals(forgetToken, LocalToken)) {
             //执行更新操作
-            int count = userMapper.updatePasswordByUsername(username, passwordNew);
+            int count = userMapper.updatePasswordByUsername(username, Md5Password);
             if (count > 0) {
                 return ServerResponse.createBySuccessMsg("修改密码成功");
             }
-        }else {
+        } else {
             return ServerResponse.createByErrorMsg("Token不相同，请重新获取token");
         }
         return ServerResponse.createByErrorMsg("重置密码错误");
     }
+
+    @Override
+    public ServerResponse<String> ResetPassword(String password, String passwordNew, User user) {
+        //检验旧密码是否正确
+        User oldPass = userMapper.checkUsernamePassword(user.getUsername(), MD5Util.MD5EncodeUtf8(password));
+        if (oldPass == null) {
+            return ServerResponse.createByErrorMsg("旧密码错误");
+        }
+        String Md5Password = MD5Util.MD5EncodeUtf8(password);
+        user.setPassword(Md5Password);
+        int count = userMapper.updateByPrimaryKeySelective(user);
+        if (count > 0) {
+            return ServerResponse.createBySuccessMsg("修改密码成功");
+        }
+        return ServerResponse.createByErrorMsg( "修改密码失败");
+    }
+
+    @Override
+    public ServerResponse<String> updateInformation(User user) {
+        int count = userMapper.updateByPrimaryKeySelective(user);
+        if (count > 0) {
+            return ServerResponse.createBySuccessMsg("更新个人信息成功");
+        }
+        return ServerResponse.createByErrorMsg("更新个人信息失败");
+    }
+
 }
