@@ -50,9 +50,44 @@ public class UserController {
         return iUserService.register(user);
     }
 
+    //检查email或者username是否存在
     @RequestMapping("/checkvalid.do")
     @ResponseBody
     public ServerResponse<String> checkValid(String str, String type) {
         return iUserService.checkVaild(str, type);
     }
+
+    //获取用户详情信息
+    @RequestMapping("/get_user_info.do")
+    @ResponseBody
+    public ServerResponse<User> get_user_info(HttpSession session) {
+        User CurrentUser = (User) session.getAttribute(Const.CUEEENT_USER);
+        if (CurrentUser == null) {
+            return ServerResponse.createByErrorMsg("用户未登录,无法获取当前用户信息");
+        }
+        return ServerResponse.createBySuccess(CurrentUser);
+    }
+
+    //忘记密码提示问题
+    @RequestMapping("/forget_get_question.do")
+    @ResponseBody
+    public ServerResponse<String> forget_get_question(String username) {
+        return iUserService.forgettGetQuestion(username);
+    }
+
+    //检验密码提示问题答案是否正确,如果正确返回一个token
+    @RequestMapping(value = "/forget_check_answer.do",method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> forgetCheckAnswer(String username, String question, String answer) {
+        return iUserService.checkAnswer(username, question, answer);
+    }
+
+    @RequestMapping("/forget_reset_password.do")
+    @ResponseBody
+    public ServerResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken) {
+        return iUserService.forgetResetPassword(username, passwordNew, forgetToken);
+    }
+
+
+
 }

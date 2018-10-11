@@ -13,4 +13,10 @@ public interface IUserService {
     ServerResponse<String> register(User user);
 
     ServerResponse<String> checkVaild(String str, String type);
+
+    ServerResponse<String> forgettGetQuestion(String username);
+
+    ServerResponse<String> checkAnswer(String username, String question, String answer);
+
+    ServerResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken);
 }
