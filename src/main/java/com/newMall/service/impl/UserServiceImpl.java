@@ -168,4 +168,12 @@ public class UserServiceImpl implements IUserService {
         return ServerResponse.createByErrorMsg("更新个人信息失败");
     }
 
+    public ServerResponse<String> checkAdminRole(User user) {
+        if (user != null && user.getRole() == Const.Role.ROLE_ADMIN) {
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
+
+
 }

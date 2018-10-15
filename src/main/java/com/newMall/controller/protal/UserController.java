@@ -1,4 +1,4 @@
-package com.newMall.controller;
+package com.newMall.controller.protal;
 
 import com.newMall.common.Const;
 import com.newMall.common.ResponseCode;
@@ -132,8 +132,6 @@ public class UserController {
         user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess(user);
     }
-
-
 
 
 }
