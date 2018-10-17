@@ -2,6 +2,8 @@ package com.newMall.service;
 
 import com.newMall.common.ServerResponse;
 
+import java.util.List;
+
 /**
  * @author Liupeng
  * @create 2018-10-14 23:34
@@ -13,5 +15,5 @@ public interface ICategoryService {
 
     ServerResponse<String> updateByCategoryIdAndName(Integer categoryId, String categoryName);
 
-    ServerResponse getDeepCategoryById(Integer categoryId);
+    ServerResponse<List<Integer>> getDeepCategoryById(Integer categoryId);
 }
